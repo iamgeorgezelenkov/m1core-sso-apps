@@ -12,7 +12,7 @@ env:
   KEYCLOAK_ISSUER: ""
   WRITER_ROLE: audit-writer
   READER_ROLE: audit-reader
-  DB_HOST: ""
+  DB_HOST: audit-db-rw
   DB_PORT: "5432"
   DB_NAME: audit
   DB_USER: audit
