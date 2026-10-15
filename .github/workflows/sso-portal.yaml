@@ -1,0 +1,62 @@
+name: sso-portal
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'sso-portal/**'
+      - 'charts/sso-portal/**'
+  workflow_dispatch:
+
+env:
+  IMAGE: ghcr.io/iamgeorgezelenkov/m1core-sso-portal
+  NAMESPACE: m1core-sso
+
+jobs:
+  build-and-deploy:
+    runs-on: m1core-sso-runner
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install buildah
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y buildah
+
+      - name: Log in to GitHub Container Registry
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | buildah login -u "${{ github.actor }}" --password-stdin ghcr.io
+
+      - name: Build image
+        run: |
+          buildah bud \
+            --storage-driver=vfs \
+            --isolation=chroot \
+            -f sso-portal/Dockerfile \
+            -t ${{ env.IMAGE }}:${{ github.sha }} \
+            sso-portal
+
+      - name: Push image
+        run: |
+          buildah push \
+            --storage-driver=vfs \
+            ${{ env.IMAGE }}:${{ github.sha }} \
+            docker://${{ env.IMAGE }}:${{ github.sha }}
+
+      - name: Install Helm
+        run: |
+          curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+          chmod 700 get_helm.sh
+          ./get_helm.sh
+
+      - name: Deploy with Helm
+        run: |
+          helm upgrade --install sso-portal charts/sso-portal \
+            --namespace ${{ env.NAMESPACE }} \
+            --set image.repository=${{ env.IMAGE }} \
+            --set image.tag=${{ github.sha }} \
+            --wait --timeout 5m
