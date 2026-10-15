@@ -1,0 +1,6 @@
+apiVersion: v2
+name: sso-portal
+description: Web portal with Keycloak OIDC login
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
