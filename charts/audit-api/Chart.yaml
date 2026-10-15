@@ -1,0 +1,6 @@
+apiVersion: v2
+name: audit-api
+description: Internal API that validates Keycloak JWTs and stores audit events in Postgres
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
