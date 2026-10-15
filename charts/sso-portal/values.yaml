@@ -1,0 +1,23 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/iamgeorgezelenkov/m1core-sso-portal
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  port: 8000
+
+env:
+  KEYCLOAK_ISSUER: ""
+  OIDC_CLIENT_ID: sso-portal
+  PUBLIC_URL: "http://localhost:8000"
+  AUDIT_API_URL: "http://audit-api:8000"
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
